@@ -3,6 +3,8 @@ package com.nttdata.application.rest;
 import com.nttdata.btask.interfaces.AccountService;
 import com.nttdata.domain.models.AccountDto;
 import com.nttdata.domain.models.ResponseDto;
+import com.nttdata.domain.models.ResponseTransferDto;
+import com.nttdata.domain.models.TransferDto;
 import com.nttdata.infraestructure.entity.Account;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -118,15 +120,65 @@ public class AccountController {
     ResponseDto responseDto = new ResponseDto();
     List<Account> list = new ArrayList<>();
 
-
      Account _account=this.accountService.updateAccountToDeposit(accountDto);
+     list.add(_account);
+    responseDto.setStatus("200");
+    responseDto.setMessage("Se Proceso Correctamente");
+    responseDto.setAccount(list);
 
-    return Response.ok(_account).status(200).build();
+    return Response.ok(responseDto).status(200).build();
   }
 
   @POST
   @Path("/withdrawal")
   public Response updateAccountAmountWithdrawal(AccountDto accountDto) {
-    return Response.ok(accountService.updateAccountToWithdrawal(accountDto)).status(200).build();
+    ResponseDto responseDto = new ResponseDto();
+    List<Account> list = new ArrayList<>();
+
+    Account _account = accountService.updateAccountToWithdrawal(accountDto);
+    list.add(_account);
+    responseDto.setStatus("200");
+    responseDto.setMessage("Se Proceso Correctamente ...");
+    responseDto.setAccount(list);
+    return Response.ok(responseDto).status(200).build();
+  }
+
+  @POST
+  @Path("/transfer")
+  public Response transferBetweenAccountOwn(TransferDto transferDto) {
+    ResponseTransferDto responseDto = new ResponseTransferDto();
+    List<TransferDto> list = new ArrayList<>();
+
+    if(transferDto.getNumberAccountOrigin().equals("") || transferDto.getNumberAccountOrigin() == null){
+      responseDto.setStatus("204");
+      responseDto.setMessage("Number de Cuenta Origen esta vacio o no existe ...");
+      responseDto.setTransferDto(new ArrayList<>());
+      return Response.ok(responseDto).status(204).build();
+    }
+
+    if(transferDto.getNumberAccountDestination().equals("") || transferDto.getNumberAccountDestination() == null){
+      responseDto.setStatus("204");
+      responseDto.setMessage("Number de Cuenta Destino esta vacio o no existe ...");
+      responseDto.setTransferDto(new ArrayList<>());
+      return Response.ok(responseDto).status(204).build();
+    }
+
+    AccountDto accountDto = new AccountDto();
+    accountDto.setNumberAccount(transferDto.getNumberAccountOrigin());
+    accountDto.setAmount(transferDto.getAmount());
+    Account _accountDeposit=this.accountService.updateAccountToDeposit(accountDto);
+    accountDto.setNumberAccount(transferDto.getNumberAccountDestination());
+
+    Account _accountWithdrawal = accountService.updateAccountToWithdrawal(accountDto);
+
+    transferDto.setIdTypeTransfer(1);
+    transferDto.setStateTransferAccountOrigin("200");
+    transferDto.setStateTransferAccountDestination("200");
+    list.add(transferDto);
+
+    responseDto.setStatus("200");
+    responseDto.setMessage("Se Proceso Correctamente ...");
+    responseDto.setTransferDto(list);
+    return Response.ok(responseDto).status(200).build();
   }
 }
