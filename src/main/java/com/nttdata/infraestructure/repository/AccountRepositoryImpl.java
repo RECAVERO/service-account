@@ -88,7 +88,6 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     List<Account> customerOp = Account.listAll();
     List<Account> customer = customerOp.stream()
-        .peek(c->System.out.println(c.getNumberAccount() + "==" + accountDto.getNumberAccount()))
         .filter(cc-> cc.getNumberAccount().equals(accountDto.getNumberAccount()))
         .filter(cc-> cc.getAmount() >= accountDto.getAmount())
         .limit(1)
@@ -105,25 +104,6 @@ public class AccountRepositoryImpl implements AccountRepository {
     }else{
       return customer.get(0);
     }
-
-    /*if(customerOp.size() == 0){
-      return customerOp.get(0);
-    }else{
-        double _amount = customerOp.get(0).getAmount() - accountDto.getAmount();
-
-        if(_amount >= 0){
-          customerOp.get(0).setAmount(_amount);
-          customerOp.get(0).setRegistrationDate(this.getDateNow());
-          customerOp.get(0).setUpdated_datetime(this.getDateNow());
-          customerOp.get(0).persist();
-        }
-
-
-
-
-      return customerOp.get(0);
-
-    }*/
   }
 
   @Override
